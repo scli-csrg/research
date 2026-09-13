@@ -1,0 +1,477 @@
+<title>CCF Submission Departures</title>
+<style>
+  :root {
+    --bg: #10141b;
+    --surface: #1a212b;
+    --surface-2: #212a36;
+    --border: #2b3542;
+    --text: #eef1f4;
+    --text-dim: #8d97a6;
+    --text-faint: #5b6472;
+    --accent: #4fb8c9;
+    --accent-soft: rgba(79, 184, 201, 0.14);
+    --critical: #e2584c;
+    --critical-soft: rgba(226, 88, 76, 0.14);
+    --warning: #e3a94a;
+    --warning-soft: rgba(227, 169, 74, 0.14);
+    --ok: #5aab82;
+    --ok-soft: rgba(90, 171, 130, 0.13);
+  }
+  :root[data-theme="light"] {
+    --bg: #eef0f2;
+    --surface: #ffffff;
+    --surface-2: #f6f7f9;
+    --border: #d7dce1;
+    --text: #1a212b;
+    --text-dim: #5a6472;
+    --text-faint: #8992a0;
+    --accent: #1f7d8c;
+    --accent-soft: rgba(31, 125, 140, 0.09);
+    --critical: #c33f34;
+    --critical-soft: rgba(195, 63, 52, 0.09);
+    --warning: #a06318;
+    --warning-soft: rgba(160, 99, 24, 0.1);
+    --ok: #2f7a56;
+    --ok-soft: rgba(47, 122, 86, 0.09);
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #eef0f2;
+      --surface: #ffffff;
+      --surface-2: #f6f7f9;
+      --border: #d7dce1;
+      --text: #1a212b;
+      --text-dim: #5a6472;
+      --text-faint: #8992a0;
+      --accent: #1f7d8c;
+      --accent-soft: rgba(31, 125, 140, 0.09);
+      --critical: #c33f34;
+      --critical-soft: rgba(195, 63, 52, 0.09);
+      --warning: #a06318;
+      --warning-soft: rgba(160, 99, 24, 0.1);
+      --ok: #2f7a56;
+      --ok-soft: rgba(47, 122, 86, 0.09);
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 2.5rem 1.25rem 4rem;
+  }
+
+  .board-frame {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.18);
+  }
+  :root[data-theme="light"] .board-frame {
+    box-shadow: 0 1px 2px rgba(20,30,40,0.05), 0 8px 24px rgba(20,30,40,0.06);
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) .board-frame {
+      box-shadow: 0 1px 2px rgba(20,30,40,0.05), 0 8px 24px rgba(20,30,40,0.06);
+    }
+  }
+
+  header.signage {
+    padding: 1.5rem 1.75rem 1.35rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .signage-title {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .eyebrow {
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-weight: 800;
+    font-stretch: condensed;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    color: var(--accent);
+  }
+  h1 {
+    margin: 0;
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-weight: 800;
+    font-stretch: condensed;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    text-wrap: balance;
+  }
+  .signage-meta {
+    text-align: right;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+    font-variant-numeric: tabular-nums;
+  }
+  .signage-meta strong { color: var(--text); font-weight: 600; }
+
+  .col-labels {
+    display: grid;
+    grid-template-columns: 88px 1.7fr 1fr 108px 150px 90px;
+    gap: 0.75rem;
+    padding: 0.6rem 1.75rem;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 88px 1.7fr 1fr 108px 150px 90px;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.95rem 1.75rem;
+    border-bottom: 1px solid var(--border);
+    animation: flap-in 0.5s cubic-bezier(.2,.8,.2,1) backwards;
+  }
+  .row:last-child { border-bottom: none; }
+  .row:hover { background: var(--surface-2); }
+
+  @keyframes flap-in {
+    from { opacity: 0; transform: translateY(-6px); filter: blur(2px); }
+    to { opacity: 1; transform: translateY(0); filter: blur(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .row { animation: none; }
+  }
+
+  .status-chip {
+    justify-self: start;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    padding: 0.28rem 0.5rem;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .status-chip.critical { color: var(--critical); background: var(--critical-soft); }
+  .status-chip.warning { color: var(--warning); background: var(--warning-soft); }
+  .status-chip.ok { color: var(--ok); background: var(--ok-soft); }
+
+  .conf-name {
+    font-weight: 700;
+    font-size: 0.98rem;
+  }
+  .conf-name .rank {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 0.1rem 0.34rem;
+    border-radius: 3px;
+    margin-left: 0.4rem;
+    letter-spacing: 0.02em;
+  }
+  .conf-sub {
+    color: var(--text-dim);
+    font-size: 0.78rem;
+    margin-top: 0.15rem;
+  }
+  .conf-place {
+    color: var(--text-faint);
+    font-size: 0.72rem;
+    margin-top: 0.2rem;
+  }
+
+  .field-tag {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+  }
+
+  .deadline-type {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-dim);
+  }
+  .deadline-when {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.74rem;
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+    margin-top: 0.15rem;
+  }
+
+  .countdown {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.95rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .countdown .unit { font-size: 0.62rem; color: var(--text-faint); font-weight: 600; margin-right: 0.35rem; }
+
+  .gate-link {
+    justify-self: end;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    text-decoration: none;
+    border: 1px solid var(--accent);
+    padding: 0.3rem 0.55rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .gate-link:hover, .gate-link:focus-visible {
+    background: var(--accent);
+    color: var(--surface);
+    outline: none;
+  }
+
+  .no-sc-note {
+    padding: 0.85rem 1.75rem;
+    font-size: 0.8rem;
+    color: var(--text-faint);
+    font-style: italic;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .empty-note {
+    padding: 2rem 1.75rem;
+    font-size: 0.95rem;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .horizon-header {
+    padding: 0.9rem 1.75rem 0.6rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+  .horizon-header .eyebrow { color: var(--text-faint); }
+  .horizon-header h2 {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+  }
+
+  .horizon-row {
+    display: grid;
+    grid-template-columns: 1.7fr 1fr 150px 90px;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.7rem 1.75rem;
+    border-bottom: 1px solid var(--border);
+    opacity: 0.72;
+  }
+  .horizon-row:last-child { border-bottom: none; }
+  .horizon-row .conf-name { font-size: 0.88rem; font-weight: 600; }
+  .horizon-row .field-tag { font-size: 0.74rem; }
+
+  footer.smallprint {
+    padding: 1.1rem 1.75rem 0.5rem;
+    font-size: 0.72rem;
+    color: var(--text-faint);
+    line-height: 1.7;
+  }
+  footer.smallprint a { color: var(--accent); }
+
+  @media (max-width: 720px) {
+    .col-labels { display: none; }
+    .row {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "status"
+        "name"
+        "field"
+        "deadline"
+        "countdown"
+        "link";
+      row-gap: 0.35rem;
+      padding: 1rem 1.25rem;
+    }
+    .row .status-chip { grid-area: status; justify-self: start; }
+    .row .conf-name { grid-area: name; }
+    .row .field-tag { grid-area: field; }
+    .row .deadline-cell { grid-area: deadline; }
+    .row .countdown { grid-area: countdown; }
+    .row .gate-link { grid-area: link; justify-self: start; }
+    .horizon-row {
+      grid-template-columns: 1fr;
+      row-gap: 0.25rem;
+      padding: 0.9rem 1.25rem;
+    }
+    .wrap { padding: 1.5rem 0.75rem 3rem; }
+    header.signage { padding: 1.25rem 1.25rem 1rem; }
+    .col-labels, .no-sc-note, .empty-note, .horizon-header, footer.smallprint { padding-left: 1.25rem; padding-right: 1.25rem; }
+  }
+</style>
+
+<div class="wrap">
+  <div class="board-frame">
+    <header class="signage">
+      <div class="signage-title">
+        <span class="eyebrow">CCF Deadline Monitor · Private</span>
+        <h1>Submission Departures</h1>
+      </div>
+      <div class="signage-meta" id="clock">
+        SCAN — 2026-09-12 05:46 UTC<br>
+        <strong id="now-local">—</strong>
+      </div>
+    </header>
+
+    <div class="col-labels">
+      <span>Status</span>
+      <span>Conference</span>
+      <span>Field</span>
+      <span>Type</span>
+      <span>Departs</span>
+      <span></span>
+    </div>
+
+    <div id="rows"></div>
+    
+    
+
+    <div class="horizon-header">
+      <span class="eyebrow">Next up</span>
+      <h2>On the horizon — 14 to 18 days out</h2>
+    </div>
+    <div id="horizon-rows"></div>
+
+    <footer class="smallprint">
+      Source: <a href="https://ccfddl.github.io/conference/allconf.yml" target="_blank" rel="noopener">ccfddl aggregate feed</a> ·
+      Fetched 2026-09-12 05:46 UTC · Countdown recalculates live in your browser — reload any time it's checked.<br>
+      This board only ever shows what was true at fetch time; it is republished automatically every morning at 7am UK time.
+    </footer>
+  </div>
+</div>
+
+<script>
+  var DEADLINES = [
+    { code: 'FAST 2027', name: 'FAST 2027', full: 'USENIX Conference on File and Storage Technologies', rank: 'A', field: 'Interdisciplinary', type: 'Full paper', when: '2026-09-16T11:59:00Z', tz: 'AoE', link: 'https://www.usenix.org/conference/fast27', place: 'FEBRUARY 23-25, 2027 · Renton, WA, USA' },
+    { code: 'NSDI 2027', name: 'NSDI 2027', full: 'USENIX Symposium on Networked Systems Design and Implementation', rank: 'A', field: 'Networking', type: 'Full paper', when: '2026-09-18T03:59:59Z', tz: 'UTC-4', link: 'https://www.usenix.org/conference/nsdi27', place: 'May 11-13, 2027 · Providence, RI, USA' },
+    { code: 'EuroSys 2027', name: 'EuroSys 2027', full: 'European Conference on Computer Systems', rank: 'A', field: 'Interdisciplinary', type: 'Abstract', when: '2026-09-18T11:59:59Z', tz: 'AoE', link: 'https://2027.eurosys.org/', place: 'April 19-24, 2027 · Rabat, Morocco' },
+    { code: 'EUROCRYPT 2027', name: 'EUROCRYPT 2027', full: 'European Cryptology Conference', rank: 'A', field: 'Security (SC)', type: 'Full paper', when: '2026-09-18T11:59:59Z', tz: 'AoE', link: 'https://eurocrypt.iacr.org/2027/', place: 'April 11-15, 2027 · Eindhoven, Netherlands' },
+    { code: 'ICLR 2027', name: 'ICLR 2027', full: 'International Conference on Learning Representations', rank: 'A', field: 'Artificial Intelligence', type: 'Abstract', when: '2026-09-19T11:59:59Z', tz: 'AoE', link: 'https://iclr.cc/Conferences/2027', place: 'April 26-30, 2027 · San Francisco, CA, USA' },
+    { code: 'EuroSys 2027', name: 'EuroSys 2027', full: 'European Conference on Computer Systems', rank: 'A', field: 'Interdisciplinary', type: 'Full paper', when: '2026-09-25T11:59:59Z', tz: 'AoE', link: 'https://2027.eurosys.org/', place: 'April 19-24, 2027 · Rabat, Morocco' },
+    { code: 'VLDB 2027', name: 'VLDB 2027', full: 'International Conference on Very Large Data Bases', rank: 'A', field: 'Databases & Data Mining', type: 'Abstract', when: '2026-09-26T00:00:00Z', tz: 'PT', link: 'https://www.vldb.org/2027/', place: 'August 23 - August 27, 2027 · Athens, Greece' },
+    { code: 'ACNS 2027', name: 'ACNS 2027', full: 'Applied Cryptography and Network Security', rank: 'C', field: 'Security (SC)', type: 'Full paper', when: '2026-09-25T11:59:59Z', tz: 'AoE', link: 'https://acns2027.isg.rhul.ac.uk/', place: 'June 28 - July 1, 2027 · Royal Holloway, Egham, UK' },
+    { code: 'FC 2027', name: 'FC 2027', full: 'Financial Cryptography and Data Security', rank: 'C', field: 'Security (SC)', type: 'Full paper', when: '2026-09-25T11:59:59Z', tz: 'UTC-12', link: 'https://fc27.ifca.ai/', place: 'February 8-12, 2027 · Barbados' },
+  ];
+
+  var HORIZON = [
+    { name: 'ICLR 2027', field: 'Artificial Intelligence', rank: 'A', type: 'Full paper', when: '2026-09-26T11:59:59Z', tz: 'AoE', link: 'https://iclr.cc/Conferences/2027' },
+  ];
+
+  function fmtWhen(iso, tz) {
+    var d = new Date(iso);
+    var opts = { month: "short", day: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC" };
+    return d.toLocaleString("en-GB", opts).replace(",", "") + " UTC (" + tz + ")";
+  }
+
+  function statusFor(ms) {
+    var days = ms / 86400000;
+    if (days <= 2) return { cls: "critical", label: "FINAL CALL" };
+    if (days <= 7) return { cls: "warning", label: "BOARDING" };
+    return { cls: "ok", label: "SCHEDULED" };
+  }
+
+  function countdownParts(ms) {
+    if (ms < 0) ms = 0;
+    var totalSec = Math.floor(ms / 1000);
+    var d = Math.floor(totalSec / 86400);
+    var h = Math.floor((totalSec % 86400) / 3600);
+    var m = Math.floor((totalSec % 3600) / 60);
+    var s = totalSec % 60;
+    function pad(n) { return (n < 10 ? "0" : "") + n; }
+    return d + "d " + pad(h) + "h " + pad(m) + "m " + pad(s) + "s";
+  }
+
+  function buildRows() {
+    var container = document.getElementById("rows");
+    container.innerHTML = "";
+    DEADLINES.forEach(function (item, i) {
+      var row = document.createElement("div");
+      row.className = "row";
+      row.style.animationDelay = (i * 45) + "ms";
+      row.innerHTML =
+        '<span class="status-chip" data-when="' + item.when + '"></span>' +
+        '<div class="conf-name">' + item.name + '<span class="rank">CCF-' + item.rank + '</span>' +
+          '<div class="conf-sub">' + item.full + '</div>' +
+          '<div class="conf-place">' + item.place + (item.note ? " · " + item.note : "") + '</div>' +
+        '</div>' +
+        '<div class="field-tag">' + item.field + '</div>' +
+        '<div class="deadline-cell"><div class="deadline-type">' + item.type + '</div><div class="deadline-when">' + fmtWhen(item.when, item.tz) + '</div></div>' +
+        '<div class="countdown" data-when="' + item.when + '"></div>' +
+        '<a class="gate-link" href="' + item.link + '" target="_blank" rel="noopener">SITE →</a>';
+      container.appendChild(row);
+    });
+  }
+
+  function buildHorizon() {
+    var container = document.getElementById("horizon-rows");
+    container.innerHTML = "";
+    HORIZON.forEach(function (item) {
+      var row = document.createElement("div");
+      row.className = "horizon-row";
+      row.innerHTML =
+        '<div class="conf-name">' + item.name + '<span class="rank">CCF-' + item.rank + '</span></div>' +
+        '<div class="field-tag">' + item.field + ' · ' + item.type + '</div>' +
+        '<div class="deadline-when">' + fmtWhen(item.when, item.tz) + '</div>' +
+        '<a class="gate-link" href="' + item.link + '" target="_blank" rel="noopener">SITE →</a>';
+      container.appendChild(row);
+    });
+  }
+
+  function tick() {
+    var now = new Date();
+    document.querySelectorAll(".status-chip[data-when]").forEach(function (el) {
+      var ms = new Date(el.getAttribute("data-when")) - now;
+      var s = statusFor(ms);
+      el.className = "status-chip " + s.cls;
+      el.textContent = s.label;
+    });
+    document.querySelectorAll(".countdown[data-when]").forEach(function (el) {
+      var ms = new Date(el.getAttribute("data-when")) - now;
+      el.innerHTML = '<span class="unit">T−</span>' + countdownParts(ms);
+    });
+    var nowLocal = document.getElementById("now-local");
+    if (nowLocal) {
+      nowLocal.textContent = "Now: " + now.toLocaleString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    }
+  }
+
+  buildRows();
+  buildHorizon();
+  tick();
+  setInterval(tick, 1000);
+</script>
